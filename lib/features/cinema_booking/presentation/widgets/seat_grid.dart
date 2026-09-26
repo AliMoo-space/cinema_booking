@@ -14,6 +14,9 @@ class SeatGrid extends StatelessWidget {
 
   static const _seatCountPerSide = 5;
   static const _seatSize = 40.0;
+  static const _rowLabelWidth = 24.0;
+  static const _seatGap = AppSpacing.space8;
+  static const _centerGap = AppSpacing.space64;
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +34,11 @@ class SeatGrid extends StatelessWidget {
         final topPadding = (MediaQuery.sizeOf(context).height * 0.04)
             .clamp(AppSpacing.space24, AppSpacing.space40)
             .toDouble();
+        final seatGroupWidth =
+            (_seatSize.w * _seatCountPerSide) +
+            (_seatGap.w * (_seatCountPerSide - 1));
         final minimumMapWidth =
-            24.w +
-            AppSpacing.space8.w +
-            (_seatSize.w * 10) +
-            (AppSpacing.space8.w * 8) +
-            AppSpacing.space64.w;
+            _rowLabelWidth.w + _seatGap.w + (seatGroupWidth * 2) + _centerGap.w;
         final mapWidth = constraints.maxWidth > minimumMapWidth
             ? constraints.maxWidth
             : minimumMapWidth;
@@ -71,12 +73,12 @@ class SeatGrid extends StatelessWidget {
                 return Row(
                   children: [
                     SizedBox(
-                      width: 24.w,
+                      width: _rowLabelWidth.w,
                       child: Text(row.key, style: AppTextStyles.labelMedium),
                     ),
-                    SizedBox(width: AppSpacing.space8.w),
+                    SizedBox(width: _seatGap.w),
                     _SeatGroup(seats: leftSeats, onSeatTap: onSeatTap),
-                    SizedBox(width: AppSpacing.space64.w),
+                    SizedBox(width: _centerGap.w),
                     _SeatGroup(seats: rightSeats, onSeatTap: onSeatTap),
                   ],
                 );
@@ -101,7 +103,7 @@ class _SeatGroup extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var index = 0; index < seats.length; index++) ...[
-          if (index > 0) SizedBox(width: AppSpacing.space8.w),
+          if (index > 0) SizedBox(width: SeatGrid._seatGap.w),
           SeatWidget(seat: seats[index], onTap: () => onSeatTap(seats[index])),
         ],
       ],

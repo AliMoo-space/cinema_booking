@@ -9,6 +9,7 @@ void main() {
         home: Scaffold(
           body: BookingSummary(
             selectedCount: 3,
+            maxSeats: 5,
             totalPrice: 150,
             onReset: () {},
           ),
@@ -28,6 +29,7 @@ void main() {
         home: Scaffold(
           body: BookingSummary(
             selectedCount: 0,
+            maxSeats: 5,
             totalPrice: 0,
             onReset: () => resetCount++,
           ),

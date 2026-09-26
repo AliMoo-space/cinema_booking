@@ -1,32 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil_plus/flutter_screenutil_plus.dart';
-
 import 'package:cinema_booking/core/design_system/colors/app_colors.dart';
 import 'package:cinema_booking/core/design_system/spacing/app_radius.dart';
 import 'package:cinema_booking/core/design_system/spacing/app_spacing.dart';
 import 'package:cinema_booking/core/design_system/typography/app_text_styles.dart';
-import 'package:cinema_booking/core/services/service_locator.dart';
 import 'package:cinema_booking/features/cinema_booking/presentation/cubit/cinema_booking_cubit.dart';
 import 'package:cinema_booking/features/cinema_booking/presentation/cubit/cinema_booking_state.dart';
+import 'package:cinema_booking/features/cinema_booking/domain/services/seat_selection_validator.dart';
 import 'package:cinema_booking/features/cinema_booking/presentation/widgets/booking_summary.dart';
 import 'package:cinema_booking/features/cinema_booking/presentation/widgets/seat_grid.dart';
 import 'package:cinema_booking/features/cinema_booking/presentation/widgets/seat_legend.dart';
 
 class CinemaBookingScreen extends StatelessWidget {
   const CinemaBookingScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<CinemaBookingCubit>(),
-      child: const _CinemaBookingView(),
-    );
-  }
-}
-
-class _CinemaBookingView extends StatelessWidget {
-  const _CinemaBookingView();
 
   @override
   Widget build(BuildContext context) {
@@ -83,6 +70,7 @@ class _CinemaBookingView extends StatelessWidget {
                   padding: EdgeInsets.all(AppSpacing.space16.w),
                   child: BookingSummary(
                     selectedCount: state.selectedCount,
+                    maxSeats: SeatSelectionValidator.maxSelectedSeats,
                     totalPrice: state.totalPrice,
                     onReset: cubit.resetSelection,
                   ),

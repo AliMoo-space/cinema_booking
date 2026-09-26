@@ -11,11 +11,13 @@ class BookingSummary extends StatelessWidget {
   const BookingSummary({
     super.key,
     required this.selectedCount,
+    required this.maxSeats,
     required this.totalPrice,
     required this.onReset,
   });
 
   final int selectedCount;
+  final int maxSeats;
   final double totalPrice;
   final VoidCallback onReset;
 
@@ -31,7 +33,7 @@ class BookingSummary extends StatelessWidget {
               Expanded(
                 child: _SummaryMetric(
                   label: 'Selected seats',
-                  value: '$selectedCount/5',
+                  value: '$selectedCount/$maxSeats',
                 ),
               ),
               Expanded(
