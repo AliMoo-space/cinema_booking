@@ -7,7 +7,11 @@ import 'package:cinema_booking/features/cinema_booking/domain/entities/seat_enti
 import 'package:cinema_booking/features/cinema_booking/presentation/widgets/seat_widget.dart';
 
 class SeatGrid extends StatelessWidget {
-  const SeatGrid({super.key, required this.seats, required this.onSeatTap});
+  const SeatGrid({
+    super.key,
+    required this.seats,
+    required this.onSeatTap,
+  });
 
   final List<SeatEntity> seats;
   final ValueChanged<SeatEntity> onSeatTap;
@@ -27,21 +31,36 @@ class SeatGrid extends StatelessWidget {
     }
 
     final rows = seatsByRow.entries.toList()
-      ..sort((first, second) => first.key.compareTo(second.key));
+      ..sort(
+        (first, second) => first.key.compareTo(second.key),
+      );
+
+    final topPadding = (MediaQuery.sizeOf(context).height * 0.04)
+        .clamp(
+          AppSpacing.space24,
+          AppSpacing.space40,
+        )
+        .toDouble();
+
+    final seatGroupWidth =
+        (_seatSize.w * _seatCountPerSide) +
+        (_seatGap.w * (_seatCountPerSide - 1));
+
+    final minimumMapWidth =
+        _rowLabelWidth.w +
+        _seatGap.w +
+        (seatGroupWidth * 2) +
+        _centerGap.w;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final topPadding = (MediaQuery.sizeOf(context).height * 0.04)
-            .clamp(AppSpacing.space24, AppSpacing.space40)
-            .toDouble();
-        final seatGroupWidth =
-            (_seatSize.w * _seatCountPerSide) +
-            (_seatGap.w * (_seatCountPerSide - 1));
-        final minimumMapWidth =
-            _rowLabelWidth.w + _seatGap.w + (seatGroupWidth * 2) + _centerGap.w;
-        final mapWidth = constraints.maxWidth > minimumMapWidth
+        final availableWidth = constraints.hasBoundedWidth
             ? constraints.maxWidth
             : minimumMapWidth;
+
+        final mapWidth = availableWidth < minimumMapWidth
+            ? minimumMapWidth
+            : availableWidth;
 
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
@@ -53,46 +72,74 @@ class SeatGrid extends StatelessWidget {
           ),
           child: SizedBox(
             width: mapWidth,
-            child: ListView.separated(
-              padding: EdgeInsets.zero,
-              itemCount: rows.length,
-              separatorBuilder: (context, index) =>
-                  SizedBox(height: AppSpacing.space16.h),
-              itemBuilder: (context, index) {
-                final row = rows[index];
-                final rowSeats = [...row.value]
-                  ..sort(
-                    (first, second) => first.number.compareTo(second.number),
-                  );
-                final leftSeats = rowSeats.take(_seatCountPerSide).toList();
-                final rightSeats = rowSeats
-                    .skip(_seatCountPerSide)
-                    .take(_seatCountPerSide)
-                    .toList();
-
-                return Row(
-                  children: [
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                for (var index = 0; index < rows.length; index++) ...[
+                  if (index > 0)
                     SizedBox(
-                      width: _rowLabelWidth.w,
-                      child: Text(row.key, style: AppTextStyles.labelMedium),
+                      height: AppSpacing.space16.h,
                     ),
-                    SizedBox(width: _seatGap.w),
-                    _SeatGroup(seats: leftSeats, onSeatTap: onSeatTap),
-                    SizedBox(width: _centerGap.w),
-                    _SeatGroup(seats: rightSeats, onSeatTap: onSeatTap),
-                  ],
-                );
-              },
+                  _buildRow(
+                    rows[index].value,
+                    rows[index].key,
+                  ),
+                ],
+              ],
             ),
           ),
         );
       },
     );
   }
+
+  Widget _buildRow(
+    List<SeatEntity> seats,
+    String rowLabel,
+  ) {
+    final rowSeats = [...seats]
+      ..sort(
+        (first, second) => first.number.compareTo(second.number),
+      );
+
+    final leftSeats = rowSeats
+        .take(_seatCountPerSide)
+        .toList();
+
+    final rightSeats = rowSeats
+        .skip(_seatCountPerSide)
+        .take(_seatCountPerSide)
+        .toList();
+
+    return Row(
+      children: [
+        SizedBox(
+          width: _rowLabelWidth.w,
+          child: Text(
+            rowLabel,
+            style: AppTextStyles.labelMedium,
+          ),
+        ),
+        SizedBox(width: _seatGap.w),
+        _SeatGroup(
+          seats: leftSeats,
+          onSeatTap: onSeatTap,
+        ),
+        SizedBox(width: _centerGap.w),
+        _SeatGroup(
+          seats: rightSeats,
+          onSeatTap: onSeatTap,
+        ),
+      ],
+    );
+  }
 }
 
 class _SeatGroup extends StatelessWidget {
-  const _SeatGroup({required this.seats, required this.onSeatTap});
+  const _SeatGroup({
+    required this.seats,
+    required this.onSeatTap,
+  });
 
   final List<SeatEntity> seats;
   final ValueChanged<SeatEntity> onSeatTap;
@@ -103,8 +150,14 @@ class _SeatGroup extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         for (var index = 0; index < seats.length; index++) ...[
-          if (index > 0) SizedBox(width: SeatGrid._seatGap.w),
-          SeatWidget(seat: seats[index], onTap: () => onSeatTap(seats[index])),
+          if (index > 0)
+            SizedBox(
+              width: SeatGrid._seatGap.w,
+            ),
+          SeatWidget(
+            seat: seats[index],
+            onTap: () => onSeatTap(seats[index]),
+          ),
         ],
       ],
     );
